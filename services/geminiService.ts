@@ -1,16 +1,23 @@
 
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 
-// The Google GenAI SDK client must be initialized with the API key from process.env.API_KEY.
-// Note: In a Netlify environment, this variable is usually injected at build time.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Access the API key from process.env. In Vite, this is often polyfilled via define.
+const getApiKey = () => {
+  try {
+    return process.env.API_KEY || "";
+  } catch (e) {
+    return "";
+  }
+};
 
 export const polishBio = async (bio: string, category: string, name: string) => {
-  // Guard against missing API key to prevent runtime errors in the browser.
-  if (!process.env.API_KEY) {
+  const apiKey = getApiKey();
+  if (!apiKey) {
     console.warn("Gemini API Key is missing. Check your environment variables.");
     return bio;
   }
+  
+  const ai = new GoogleGenAI({ apiKey });
   
   try {
     const response = await ai.models.generateContent({
@@ -27,9 +34,12 @@ export const polishBio = async (bio: string, category: string, name: string) => 
 };
 
 export const generateTagline = async (name: string, category: string, skills: string[]) => {
-  if (!process.env.API_KEY) {
+  const apiKey = getApiKey();
+  if (!apiKey) {
     return `Specializing in ${category}.`;
   }
+
+  const ai = new GoogleGenAI({ apiKey });
 
   try {
     const response = await ai.models.generateContent({

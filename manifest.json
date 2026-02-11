@@ -2,4 +2,16 @@
 {
   "name": "FreelancePortfolio",
   "short_name": "PortfolioGen",
-  "description":
+  "description": "Elite Portfolio Generator for Freelancers",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6366f1",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1085/1085810.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
