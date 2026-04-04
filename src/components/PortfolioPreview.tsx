@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { PortfolioData, Theme, Category } from '../types';
-import { Mail, MapPin, ExternalLink, ArrowRight, Play, Globe, GraduationCap, Award } from 'lucide-react';
+import { PortfolioData, Theme } from '../types';
+import { Mail, MapPin, ExternalLink, ArrowRight, Globe, GraduationCap, Award } from 'lucide-react';
 import { SOCIAL_ICONS, CATEGORIES } from '../constants';
 
 interface PortfolioPreviewProps {
@@ -74,7 +74,7 @@ const PortfolioPreview: React.FC<PortfolioPreviewProps> = ({ data, theme }) => {
   }[theme];
 
   const getYoutubeEmbed = (url: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
   };
@@ -146,7 +146,7 @@ const PortfolioPreview: React.FC<PortfolioPreviewProps> = ({ data, theme }) => {
                 rel="noopener noreferrer"
                 className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all hover:scale-110 border border-current/20 hover:bg-current/10"
               >
-                {(SOCIAL_ICONS as any)[key]}
+                {SOCIAL_ICONS[key as keyof typeof SOCIAL_ICONS]}
               </a>
             )
           ))}

@@ -1,8 +1,7 @@
 
 import React, { useState } from 'react';
-import { PortfolioData, Skill, Project, Qualification, Certification } from '../types';
-import { Plus, Trash2, Sparkles, Loader2, ArrowRight, Link as LinkIcon, Briefcase, MapPin, User, Mail, Star, Share2, Award, GraduationCap, Calendar } from 'lucide-react';
-import { polishBio, generateTagline } from '../services/geminiService';
+import { PortfolioData, Project, Qualification, Certification } from '../types';
+import { Plus, Trash2, ArrowRight, Link as LinkIcon, Briefcase, MapPin, User, Mail, Star, Share2, Award, GraduationCap, Calendar } from 'lucide-react';
 
 interface EditorFormProps {
   data: PortfolioData;
@@ -11,31 +10,14 @@ interface EditorFormProps {
 }
 
 const EditorForm: React.FC<EditorFormProps> = ({ data, onChange, onNext }) => {
-  const [isPolishing, setIsPolishing] = useState(false);
   const [newSkill, setNewSkill] = useState({ name: '', level: 80 });
 
-  const updateField = (field: keyof PortfolioData, value: any) => {
+  const updateField = <K extends keyof PortfolioData>(field: K, value: PortfolioData[K]) => {
     onChange({ ...data, [field]: value });
   };
 
   const updateSocial = (platform: string, value: string) => {
     onChange({ ...data, socials: { ...data.socials, [platform]: value } });
-  };
-
-  const handlePolishBio = async () => {
-    if (!data.about || !data.fullName) return;
-    setIsPolishing(true);
-    const polished = await polishBio(data.about, data.category, data.fullName);
-    updateField('about', polished);
-    setIsPolishing(false);
-  };
-
-  const handleMagicTagline = async () => {
-    if (!data.fullName) return;
-    setIsPolishing(true);
-    const tag = await generateTagline(data.fullName, data.category, data.skills.map(s => s.name));
-    updateField('tagline', tag);
-    setIsPolishing(false);
   };
 
   const addSkill = () => {
@@ -154,15 +136,7 @@ const EditorForm: React.FC<EditorFormProps> = ({ data, onChange, onNext }) => {
           </div>
           <div className="md:col-span-2 space-y-1">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-1">
-              <label className={labelStyle}><Sparkles size={12}/> The Hook (Tagline)</label>
-              <button 
-                onClick={handleMagicTagline}
-                disabled={isPolishing || !data.fullName}
-                className="text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-700 flex items-center gap-1.5 px-3 py-1 bg-indigo-50 rounded-lg disabled:opacity-50 transition-all self-start sm:self-auto"
-              >
-                {isPolishing ? <Loader2 className="animate-spin" size={12} /> : <Sparkles size={12} />}
-                Generate AI Hook
-              </button>
+              <label className={labelStyle}>The Hook (Tagline)</label>
             </div>
             <input 
               type="text" 
@@ -175,14 +149,6 @@ const EditorForm: React.FC<EditorFormProps> = ({ data, onChange, onNext }) => {
           <div className="md:col-span-2 space-y-1">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-1">
               <label className={labelStyle}><Briefcase size={12}/> Narrative (About)</label>
-              <button 
-                onClick={handlePolishBio}
-                disabled={isPolishing || !data.about}
-                className="text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-700 flex items-center gap-1.5 px-3 py-1 bg-indigo-50 rounded-lg disabled:opacity-50 transition-all self-start sm:self-auto"
-              >
-                {isPolishing ? <Loader2 className="animate-spin" size={12} /> : <Sparkles size={12} />}
-                Polish with Assistant
-              </button>
             </div>
             <textarea 
               rows={5}
@@ -468,7 +434,7 @@ const EditorForm: React.FC<EditorFormProps> = ({ data, onChange, onNext }) => {
               <label className={labelStyle}>{platform}</label>
               <input 
                 type="text" 
-                value={(data.socials as any)[platform.toLowerCase()] || ''}
+                value={data.socials[platform.toLowerCase() as keyof typeof data.socials] || ''}
                 onChange={(e) => updateSocial(platform.toLowerCase(), e.target.value)}
                 className={inputStyle}
                 placeholder={`${platform} URL...`}
