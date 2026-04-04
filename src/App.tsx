@@ -2,10 +2,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './services/supabase';
-import LandingPage from './pages/LandingPage';
+import HomePage from './pages/HomePage';
+import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import DashboardPage from './pages/DashboardPage';
 import EditorPage from './pages/EditorPage';
 import PreviewPage from './pages/PreviewPage';
 import { Loader2, Rocket } from 'lucide-react';
@@ -71,7 +71,7 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/login" element={session ? <Navigate to="/dashboard" /> : <LoginPage />} />
         <Route path="/register" element={session ? <Navigate to="/dashboard" /> : <RegisterPage />} />
         
@@ -80,11 +80,7 @@ export default function App() {
           element={session ? <DashboardPage /> : <Navigate to="/login" />} 
         />
         <Route 
-          path="/editor" 
-          element={session ? <EditorPage /> : <Navigate to="/login" />} 
-        />
-        <Route 
-          path="/editor/:id" 
+          path="/editor/:id?" 
           element={session ? <EditorPage /> : <Navigate to="/login" />} 
         />
         <Route 

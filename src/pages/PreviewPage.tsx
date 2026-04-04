@@ -53,7 +53,7 @@ export default function PreviewPage() {
       <div className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-slate-100 z-[100] h-16">
         <div className="max-w-7xl mx-auto px-6 h-full flex justify-between items-center">
           <button onClick={() => navigate(`/editor/${id}`)} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-indigo-600 transition-colors">
-            <ArrowLeft size={16}/> Edit Portfolio
+            <ArrowLeft size={16}/> Build Your Project
           </button>
           <div className="flex items-center gap-4">
             <button onClick={handleShare} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-indigo-600 transition-colors">
@@ -73,7 +73,7 @@ export default function PreviewPage() {
       {/* Control Bar (Floating) */}
       <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-xl text-white px-8 py-4 rounded-full z-[100] flex items-center gap-8 shadow-2xl border border-white/10">
         <button onClick={() => navigate(`/editor/${id}`)} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest hover:text-indigo-400 transition-colors">
-          <ArrowLeft size={16}/> Edit Portfolio
+          <ArrowLeft size={16}/> Build Your Project
         </button>
         <div className="w-px h-6 bg-white/10"></div>
         <button onClick={handleShare} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest hover:text-indigo-400 transition-colors">

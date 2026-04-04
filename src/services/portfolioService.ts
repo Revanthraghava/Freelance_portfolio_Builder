@@ -32,12 +32,14 @@ export const portfolioService = {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
+    // Use upsert to prevent duplicate key errors if an ID is somehow present
     const { data, error } = await supabase
       .from('portfolios')
-      .insert([{
+      .upsert([{
         user_id: user.id,
-        content: portfolio
-      }])
+        content: portfolio,
+        updated_at: new Date().toISOString()
+      }], { onConflict: 'id' })
       .select()
       .single();
 

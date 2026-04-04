@@ -22,6 +22,7 @@ export default function EditorPage() {
   const [activeTab, setActiveTab] = useState<'info' | 'skills' | 'projects' | 'template'>('info');
   const [isGenerating, setIsGenerating] = useState(false);
   const [newSkillName, setNewSkillName] = useState('');
+  const lastSavedId = React.useRef<string | null>(null);
 
   const tabs = ['info', 'skills', 'projects', 'template'] as const;
 
@@ -34,15 +35,29 @@ export default function EditorPage() {
   };
 
   useEffect(() => {
-    if (id) {
-      portfolioService.getPortfolioById(id).then(p => {
-        setData(p.content);
-        setLoading(false);
-      }).catch(() => navigate('/dashboard'));
+    let isMounted = true;
+    if (id && id !== lastSavedId.current) {
+      setLoading(true);
+      portfolioService.getPortfolioById(id)
+        .then(p => {
+          if (isMounted && p && p.content) {
+            setData(p.content);
+            setLoading(false);
+          }
+        })
+        .catch(err => {
+          console.error('Failed to load portfolio:', err);
+          if (isMounted) navigate('/dashboard');
+        });
+    } else if (!id) {
+      setData(INITIAL_DATA);
+      setLoading(false);
     }
+    return () => { isMounted = false; };
   }, [id, navigate]);
 
-  const handleSave = async (shouldNavigateToPreview = false) => {
+  const handleSave = async (destination?: 'preview' | 'dashboard') => {
+    if (saving) return;
     setSaving(true);
     try {
       let currentId = id;
@@ -51,11 +66,17 @@ export default function EditorPage() {
       } else {
         const result = await portfolioService.createPortfolio(data);
         currentId = result.id;
-        navigate(`/editor/${currentId}`, { replace: true });
+        lastSavedId.current = currentId;
+        // Update URL if we're staying in the editor
+        if (!destination) {
+          navigate(`/editor/${currentId}`, { replace: true });
+        }
       }
 
-      if (shouldNavigateToPreview && currentId) {
-        window.open(`/preview/${currentId}`, '_blank');
+      if (destination === 'preview' && currentId) {
+        navigate(`/preview/${currentId}`);
+      } else if (destination === 'dashboard') {
+        navigate('/dashboard');
       }
     } catch (err) {
       console.error(err);
@@ -162,24 +183,30 @@ export default function EditorPage() {
       <header className="bg-white border-b border-slate-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
           <div className="flex items-center gap-6">
-            <button onClick={() => navigate('/dashboard')} className="w-10 h-10 bg-slate-50 text-slate-400 hover:text-indigo-600 rounded-xl flex items-center justify-center transition-all">
+            <button 
+              type="button"
+              onClick={() => navigate('/dashboard')} 
+              className="w-10 h-10 bg-slate-50 text-slate-400 hover:text-indigo-600 rounded-xl flex items-center justify-center transition-all"
+            >
               <ArrowLeft size={20} />
             </button>
             <div>
-              <h1 className="text-xl font-black tracking-tighter italic">Portfolio Architect</h1>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Editing: {data.name || 'Untitled'}</p>
+              <h1 className="text-xl font-black tracking-tighter italic">Build Your Project</h1>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Building: {data.name || 'Untitled'}</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <button 
-              onClick={() => handleSave(true)} 
+              type="button"
+              onClick={() => handleSave('preview')} 
               disabled={saving}
               className="bg-emerald-600 text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest text-xs shadow-xl shadow-emerald-200 hover:bg-emerald-700 transition-all flex items-center gap-2"
             >
               {saving ? <Loader2 className="animate-spin" size={16} /> : <ExternalLink size={16} />} Save & Preview
             </button>
             <button 
-              onClick={() => handleSave(false)} 
+              type="button"
+              onClick={() => handleSave('dashboard')} 
               disabled={saving}
               className="bg-indigo-600 text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest text-xs shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center gap-3"
             >
@@ -195,6 +222,7 @@ export default function EditorPage() {
           {(['info', 'skills', 'projects', 'template'] as const).map(tab => (
             <button
               key={tab}
+              type="button"
               onClick={() => setActiveTab(tab)}
               className={`flex-1 py-4 px-6 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === tab ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}
             >
@@ -236,6 +264,7 @@ export default function EditorPage() {
                   <div className="flex justify-between items-end">
                     <SectionHeader icon={<Sparkles />} title="Professional Narrative" subtitle="AI-enhanced bio and tagline." />
                     <button 
+                      type="button"
                       onClick={handleGenerateBio} 
                       disabled={isGenerating}
                       className="mb-4 text-indigo-600 font-black uppercase tracking-widest text-[10px] flex items-center gap-2 hover:underline disabled:opacity-50"
@@ -255,7 +284,11 @@ export default function EditorPage() {
                   <div className="md:col-span-2">
                     <div className="flex justify-between items-end mb-4">
                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Tagline</label>
-                      <button onClick={handleGenerateTagline} className="text-indigo-600 font-black uppercase tracking-widest text-[10px] flex items-center gap-2 hover:underline">
+                      <button 
+                        type="button"
+                        onClick={handleGenerateTagline} 
+                        className="text-indigo-600 font-black uppercase tracking-widest text-[10px] flex items-center gap-2 hover:underline"
+                      >
                         <Sparkles size={14}/> AI Tagline
                       </button>
                     </div>
@@ -278,6 +311,7 @@ export default function EditorPage() {
 
                 <div className="pt-10 flex justify-end">
                   <button 
+                    type="button"
                     onClick={goToNextTab}
                     className="bg-slate-900 text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 hover:bg-indigo-600 transition-all group"
                   >
@@ -293,6 +327,7 @@ export default function EditorPage() {
                   <SectionHeader icon={<Star />} title="Core Arsenal" subtitle="Your technical and creative tools." />
                   <div className="flex gap-3">
                     <button 
+                      type="button"
                       onClick={handleRecommendSkills} 
                       disabled={isGenerating}
                       className="bg-indigo-50 text-indigo-600 px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 hover:bg-indigo-100 transition-all disabled:opacity-50"
@@ -312,6 +347,7 @@ export default function EditorPage() {
                       className="flex-1 px-8 py-5 rounded-2xl border border-slate-200 bg-white outline-none focus:ring-4 focus:ring-indigo-500/10 font-bold"
                     />
                     <button 
+                      type="button"
                       onClick={() => addSkill()}
                       className="bg-slate-900 text-white px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-indigo-600 transition-all"
                     >
@@ -333,7 +369,11 @@ export default function EditorPage() {
                         />
                         <span className="text-xs font-black text-indigo-600 w-8">{skill.level}%</span>
                       </div>
-                      <button onClick={() => removeSkill(skill.id)} className="text-rose-500 hover:bg-rose-50 p-3 rounded-xl transition-all">
+                      <button 
+                        type="button"
+                        onClick={() => removeSkill(skill.id)} 
+                        className="text-rose-500 hover:bg-rose-50 p-3 rounded-xl transition-all"
+                      >
                         <Trash2 size={20}/>
                       </button>
                     </div>
@@ -343,6 +383,7 @@ export default function EditorPage() {
 
                 <div className="pt-10 flex justify-end">
                   <button 
+                    type="button"
                     onClick={goToNextTab}
                     className="bg-slate-900 text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 hover:bg-indigo-600 transition-all group"
                   >
@@ -356,7 +397,11 @@ export default function EditorPage() {
               <div className="space-y-10">
                 <div className="flex justify-between items-center">
                   <SectionHeader icon={<Briefcase />} title="Featured Works" subtitle="Showcase your best projects." />
-                  <button onClick={addProject} className="bg-slate-900 text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 hover:bg-indigo-600 transition-all">
+                  <button 
+                    type="button"
+                    onClick={addProject} 
+                    className="bg-slate-900 text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 hover:bg-indigo-600 transition-all"
+                  >
                     <Plus size={16}/> New Project
                   </button>
                 </div>
@@ -372,10 +417,14 @@ export default function EditorPage() {
                               <Upload size={14}/> Upload Local
                               <input type="file" className="hidden" accept="image/*" onChange={e => handleImageUpload(project.id, e)} />
                             </label>
-                            <button onClick={() => {
-                              const url = prompt('Enter image URL:', project.image);
-                              if (url) updateProject(project.id, { image: url });
-                            }} className="bg-slate-900 text-white px-4 py-2 rounded-lg font-bold text-[10px] uppercase tracking-widest flex items-center gap-2">
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                const url = prompt('Enter image URL:', project.image);
+                                if (url) updateProject(project.id, { image: url });
+                              }} 
+                              className="bg-slate-900 text-white px-4 py-2 rounded-lg font-bold text-[10px] uppercase tracking-widest flex items-center gap-2"
+                            >
                               <ImageIcon size={14}/> URL
                             </button>
                           </div>
@@ -388,7 +437,13 @@ export default function EditorPage() {
                               placeholder="Project Title"
                               className="text-2xl font-black bg-transparent border-b-2 border-transparent focus:border-indigo-600 outline-none w-full mr-4"
                             />
-                            <button onClick={() => removeProject(project.id)} className="text-rose-500 hover:bg-rose-50 p-2 rounded-lg"><Trash2 size={18}/></button>
+                            <button 
+                              type="button"
+                              onClick={() => removeProject(project.id)} 
+                              className="text-rose-500 hover:bg-rose-50 p-2 rounded-lg"
+                            >
+                              <Trash2 size={18}/>
+                            </button>
                           </div>
                           <textarea 
                             value={project.description} 
@@ -414,6 +469,7 @@ export default function EditorPage() {
 
                 <div className="pt-10 flex justify-end">
                   <button 
+                    type="button"
                     onClick={goToNextTab}
                     className="bg-slate-900 text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 hover:bg-indigo-600 transition-all group"
                   >
@@ -450,7 +506,8 @@ export default function EditorPage() {
 
                 <div className="pt-10 flex justify-end">
                   <button 
-                    onClick={() => handleSave(true)}
+                    type="button"
+                    onClick={() => handleSave('preview')}
                     disabled={saving}
                     className="bg-indigo-600 text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 shadow-2xl shadow-indigo-200 hover:bg-indigo-700 transition-all"
                   >

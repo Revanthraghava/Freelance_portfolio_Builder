@@ -91,10 +91,12 @@ function ModernDarkTemplate({ data }: Props) {
                 <img src={project.image} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
               </div>
               <div className="p-10">
-                <h3 className="text-2xl font-black mb-4">{project.title}</h3>
+                <a href={project.link} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-500 transition-colors">
+                  <h3 className="text-2xl font-black mb-4">{project.title}</h3>
+                </a>
                 <p className="text-slate-400 font-medium mb-8 line-clamp-2">{project.description}</p>
-                <a href={project.link} className="inline-flex items-center gap-2 text-indigo-500 font-black uppercase tracking-widest text-[10px] hover:gap-4 transition-all">
-                  Explore Project <ArrowRight size={16}/>
+                <a href={project.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-indigo-500 font-black uppercase tracking-widest text-[10px] hover:gap-4 transition-all">
+                  View Project <ArrowRight size={16}/>
                 </a>
               </div>
             </div>
@@ -176,10 +178,12 @@ function MinimalTemplate({ data }: Props) {
                   <img src={project.image} alt="" className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1 space-y-6">
-                  <h3 className="text-4xl font-black tracking-tight">{project.title}</h3>
+                  <a href={project.link} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 transition-colors">
+                    <h3 className="text-4xl font-black tracking-tight">{project.title}</h3>
+                  </a>
                   <p className="text-lg text-slate-500 font-medium leading-relaxed">{project.description}</p>
-                  <a href={project.link} className="inline-flex items-center gap-2 text-indigo-600 font-black uppercase tracking-widest text-xs hover:gap-4 transition-all">
-                    View Case Study <ArrowRight size={16}/>
+                  <a href={project.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-indigo-600 font-black uppercase tracking-widest text-xs hover:gap-4 transition-all">
+                    View Project <ArrowRight size={16}/>
                   </a>
                 </div>
               </div>
@@ -239,9 +243,11 @@ function CreativeTemplate({ data }: Props) {
               <div key={project.id} className={`group relative aspect-[4/5] overflow-hidden rounded-[3rem] ${i % 3 === 0 ? 'md:col-span-2 aspect-video' : ''}`}>
                 <img src={project.image} alt="" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent p-12 flex flex-col justify-end opacity-0 group-hover:opacity-100 transition-all duration-500">
-                  <h3 className="text-4xl font-black mb-4">{project.title}</h3>
+                  <a href={project.link} target="_blank" rel="noopener noreferrer" className="hover:text-rose-500 transition-colors">
+                    <h3 className="text-4xl font-black mb-4">{project.title}</h3>
+                  </a>
                   <p className="text-white/60 font-medium mb-8 max-w-md">{project.description}</p>
-                  <a href={project.link} className="w-16 h-16 bg-rose-600 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
+                  <a href={project.link} target="_blank" rel="noopener noreferrer" className="w-16 h-16 bg-rose-600 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
                     <ExternalLink size={24}/>
                   </a>
                 </div>
@@ -302,6 +308,12 @@ function ProfessionalTemplate({ data }: Props) {
             <h1 className="text-3xl font-black tracking-tighter mb-2">{data.name}</h1>
             <p className="text-indigo-600 font-black uppercase tracking-widest text-[10px] mb-8">{data.category}</p>
             
+            <nav className="flex flex-col gap-4 mb-12">
+              <a href="#about" className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-indigo-600 transition-colors">About</a>
+              <a href="#skills" className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-indigo-600 transition-colors">Skills</a>
+              <a href="#projects" className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-indigo-600 transition-colors">Projects</a>
+            </nav>
+
             <div className="space-y-6">
               <div className="flex items-center gap-4 text-slate-500">
                 <Mail size={18}/> <span className="text-sm font-bold">{data.email}</span>
@@ -319,14 +331,14 @@ function ProfessionalTemplate({ data }: Props) {
         </aside>
 
         <main className="flex-1 p-6 lg:p-24 space-y-32">
-          <section>
+          <section id="about">
             <h2 className="text-xs font-black uppercase tracking-[0.3em] text-slate-300 mb-12">Executive Summary</h2>
             <p className="text-3xl md:text-5xl font-black tracking-tight leading-tight text-slate-900">
               {data.bio}
             </p>
           </section>
 
-          <section>
+          <section id="skills">
             <h2 className="text-xs font-black uppercase tracking-[0.3em] text-slate-300 mb-12">Core Competencies</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {data.skills.map(skill => (
@@ -343,7 +355,7 @@ function ProfessionalTemplate({ data }: Props) {
             </div>
           </section>
 
-          <section>
+          <section id="projects">
             <h2 className="text-xs font-black uppercase tracking-[0.3em] text-slate-300 mb-12">Portfolio Highlights</h2>
             <div className="grid grid-cols-1 gap-12">
               {data.projects.map(project => (
@@ -353,9 +365,11 @@ function ProfessionalTemplate({ data }: Props) {
                       <img src={project.image} alt="" className="w-full h-full object-cover" />
                     </div>
                     <div className="p-12 flex flex-col justify-center">
-                      <h3 className="text-3xl font-black mb-4">{project.title}</h3>
+                      <a href={project.link} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 transition-colors">
+                        <h3 className="text-3xl font-black mb-4">{project.title}</h3>
+                      </a>
                       <p className="text-slate-500 font-medium mb-8">{project.description}</p>
-                      <a href={project.link} className="inline-flex items-center gap-2 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] self-start">
+                      <a href={project.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] self-start">
                         View Project <ExternalLink size={14}/>
                       </a>
                     </div>

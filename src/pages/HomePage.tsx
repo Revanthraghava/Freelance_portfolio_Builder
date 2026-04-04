@@ -1,14 +1,38 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Rocket, Sparkles, Layout, Download, ArrowRight } from 'lucide-react';
+import { supabase } from '../services/supabase';
+import { 
+  Rocket, Sparkles, Layout, Download, ArrowRight, LogOut
+} from 'lucide-react';
 import { motion } from 'framer-motion';
+import { User } from '@supabase/supabase-js';
 
-export default function LandingPage() {
+export default function HomePage() {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    loadData();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
+
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans">
       {/* Navigation */}
-      <nav className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
+      <nav className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center sticky top-0 bg-white/80 backdrop-blur-md z-[60]">
         <div className="flex items-center gap-2">
           <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white">
             <Rocket size={24} />
@@ -16,8 +40,25 @@ export default function LandingPage() {
           <span className="text-2xl font-black tracking-tighter">AI Portfolio</span>
         </div>
         <div className="flex items-center gap-8">
-          <Link to="/login" className="font-bold text-slate-600 hover:text-indigo-600 transition-colors">Login</Link>
-          <Link to="/register" className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">Get Started</Link>
+          <Link to="/dashboard" className="font-bold text-slate-600 hover:text-indigo-600 transition-colors">
+            Dashboard
+          </Link>
+          {user ? (
+            <div className="flex items-center gap-6">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-black text-slate-900 leading-none">{user?.user_metadata?.full_name || 'Creator'}</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Professional Portal</p>
+              </div>
+              <button onClick={handleLogout} className="w-10 h-10 bg-slate-50 text-slate-400 hover:text-rose-500 rounded-xl flex items-center justify-center transition-all">
+                <LogOut size={20} />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-6">
+              <Link to="/login" className="font-bold text-slate-600 hover:text-indigo-600 transition-colors">Login</Link>
+              <Link to="/register" className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">Get Started</Link>
+            </div>
+          )}
         </div>
       </nav>
 
@@ -40,8 +81,8 @@ export default function LandingPage() {
             The ultimate platform for freelancers to build, preview, and download stunning portfolio websites. No coding required.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link to="/register" className="bg-slate-900 text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-slate-800 transition-all flex items-center justify-center gap-3">
-              Build Your Portfolio <ArrowRight size={20} />
+            <Link to={user ? "/editor" : "/register"} className="bg-slate-900 text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-slate-800 transition-all flex items-center justify-center gap-3">
+              {user ? "Build Your Project" : "Build Your Portfolio"} <ArrowRight size={20} />
             </Link>
             <Link to="/login" className="bg-white border-2 border-slate-100 text-slate-900 px-10 py-5 rounded-2xl font-black text-lg hover:border-indigo-600 transition-all">
               View Templates
