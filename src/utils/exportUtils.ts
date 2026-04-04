@@ -55,8 +55,8 @@ export const exportPortfolio = async (data: PortfolioData) => {
                     ${data.bio}
                 </p>
                 <div class="flex gap-4">
-                    ${data.socials.github ? `<a href="${data.socials.github}" class="px-8 py-4 bg-white text-black rounded-2xl font-black uppercase tracking-widest text-xs">GitHub</a>` : ''}
-                    ${data.socials.linkedin ? `<a href="${data.socials.linkedin}" class="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs">LinkedIn</a>` : ''}
+                    ${data.socials.github ? `<a href="${data.socials.github}" target="_blank" rel="noopener noreferrer" class="px-8 py-4 bg-white text-black rounded-2xl font-black uppercase tracking-widest text-xs">GitHub</a>` : ''}
+                    ${data.socials.linkedin ? `<a href="${data.socials.linkedin}" target="_blank" rel="noopener noreferrer" class="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs">LinkedIn</a>` : ''}
                 </div>
             </div>
         </section>
@@ -89,9 +89,11 @@ export const exportPortfolio = async (data: PortfolioData) => {
                             <img src="${project.image}" alt="" class="w-full h-full object-cover" />
                         </div>
                         <div class="p-10">
-                            <h3 class="text-2xl font-black mb-4">${project.title}</h3>
+                            <a href="${project.link}" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-500 transition-colors">
+                                <h3 class="text-2xl font-black mb-4">${project.title}</h3>
+                            </a>
                             <p class="opacity-60 font-medium mb-8">${project.description}</p>
-                            <a href="${project.link}" class="text-indigo-500 font-black uppercase tracking-widest text-[10px]">View Project →</a>
+                            <a href="${project.link}" target="_blank" rel="noopener noreferrer" class="text-indigo-500 font-black uppercase tracking-widest text-[10px]">View Project →</a>
                         </div>
                     </div>
                 `).join('')}
